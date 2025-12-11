@@ -1,6 +1,6 @@
 terraform {
   required_providers {
-    aws    = { source = "hashicorp/aws", version = "~> 6.26" }
+    aws = { source = "hashicorp/aws", version = "~> 6.26" }
   }
 }
 
@@ -10,6 +10,7 @@ provider "aws" {
 
 module "vpc" {
   source = "./modules/vpc"
+  region = var.region
 }
 
 module "sg" {
