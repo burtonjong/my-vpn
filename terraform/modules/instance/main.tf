@@ -24,7 +24,9 @@ resource "aws_instance" "wireguard_instance" {
 
   associate_public_ip_address = true
 
-  user_data = templatefile("${path.module}/wireguard-user-data.tftpl", {
+  user_data_replace_on_change = true
+
+  user_data = templatefile("${path.module}/wireguard-user-data.sh", {
     wireguard_port = 51820
     aws_region     = var.region
   })

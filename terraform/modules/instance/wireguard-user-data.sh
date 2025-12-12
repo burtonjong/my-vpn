@@ -70,18 +70,11 @@ chown ubuntu:ubuntu /home/ubuntu/wg-client.conf
 systemctl enable wg-quick@wg0
 systemctl start wg-quick@wg0
 
-# public keys are stored in SSM parameter store
+CLIENT_CONFIG=$(cat /home/ubuntu/wg-client.conf)
 aws ssm put-parameter \
-    --name "/wireguard/server-public-key" \
-    --value "$SERVER_PUBLIC_KEY" \
-    --type "String" \
-    --overwrite \
-    --region ${aws_region}
-
-aws ssm put-parameter \
-    --name "/wireguard/client-public-key" \
-    --value "$CLIENT_PUBLIC_KEY" \
-    --type "String" \
+    --name "/wireguard/client-config" \
+    --value "$CLIENT_CONFIG" \
+    --type "SecureString" \
     --overwrite \
     --region ${aws_region}
 
