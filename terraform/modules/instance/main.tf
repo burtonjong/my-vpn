@@ -24,6 +24,8 @@ resource "aws_instance" "wireguard_instance" {
 
   associate_public_ip_address = true
 
+  user_data = file("${path.module}/wireguard-user-data.sh")
+
   tags = {
     Name = "MyVpn"
   }

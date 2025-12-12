@@ -5,7 +5,7 @@ terraform {
 }
 
 provider "aws" {
-  region = var.region
+  region  = var.region
   profile = var.aws_profile
 }
 
@@ -24,8 +24,8 @@ module "iam" {
 }
 
 module "instance" {
-  source                      = "./modules/instance"
-  subnet_id                   = module.vpc.subnet_id
-  security_group_id           = module.sg.security_group_id
-  iam_instance_profile_name   = module.iam.ssm_instance_profile_name
+  source                    = "./modules/instance"
+  subnet_id                 = module.vpc.subnet_id
+  security_group_id         = module.sg.security_group_id
+  iam_instance_profile_name = module.iam.ssm_instance_profile_name
 }

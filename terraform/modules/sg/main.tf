@@ -12,14 +12,6 @@ resource "aws_security_group" "wireguard_sg" {
     cidr_blocks = ["0.0.0.0/0"] # Anyone can connect I think
   }
 
-  # Inbound can SSH
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] # 
-  }
-
   # Allow all outbound
   egress {
     from_port   = 0
