@@ -24,7 +24,10 @@ resource "aws_instance" "wireguard_instance" {
 
   associate_public_ip_address = true
 
-  user_data = file("${path.module}/wireguard-user-data.sh")
+  user_data = templatefile("${path.module}/wireguard-user-data.tftpl", {
+    wireguard_port = 51820
+    aws_region     = var.region
+  })
 
   tags = {
     Name = "MyVpn"

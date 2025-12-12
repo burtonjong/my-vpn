@@ -28,4 +28,5 @@ module "instance" {
   subnet_id                 = module.vpc.subnet_id
   security_group_id         = module.sg.security_group_id
   iam_instance_profile_name = module.iam.ssm_instance_profile_name
+  region                    = var.region
 }

@@ -38,7 +38,7 @@ cat > /etc/wireguard/wg0.conf <<EOF
 [Interface]
 PrivateKey = $SERVER_PRIVATE_KEY
 Address = $SERVER_IP
-ListenPort = 51820
+ListenPort = ${wireguard_port}
 PostUp = iptables -A FORWARD -i wg0 -j ACCEPT; iptables -t nat -A POSTROUTING -o ens5 -j MASQUERADE
 PostDown = iptables -D FORWARD -i wg0 -j ACCEPT; iptables -t nat -D POSTROUTING -o ens5 -j MASQUERADE
 
@@ -57,7 +57,7 @@ DNS = 1.1.1.1
 
 [Peer]
 PublicKey = $SERVER_PUBLIC_KEY
-Endpoint = $(curl -s ifconfig.me):51820
+Endpoint = $(curl -s ifconfig.me):${wireguard_port}
 AllowedIPs = 0.0.0.0/0, ::/0
 PersistentKeepalive = 25
 EOF
@@ -76,13 +76,13 @@ aws ssm put-parameter \
     --value "$SERVER_PUBLIC_KEY" \
     --type "String" \
     --overwrite \
-    --region us-east-1
+    --region ${aws_region}
 
 aws ssm put-parameter \
     --name "/wireguard/client-public-key" \
     --value "$CLIENT_PUBLIC_KEY" \
     --type "String" \
     --overwrite \
-    --region us-east-1
+    --region ${aws_region}
 
 echo "Finished wireguard setup script"

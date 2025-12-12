@@ -12,3 +12,8 @@ variable "iam_instance_profile_name" {
   description = "IAM instance profile name"
   type        = string
 }
+
+variable "region" {
+  description = "Region of the AWS account"
+  type        = string
+}
