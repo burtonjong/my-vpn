@@ -9,7 +9,7 @@ resource "aws_security_group" "wireguard_sg" {
     from_port   = 51820
     to_port     = 51820
     protocol    = "udp"
-    cidr_blocks = ["0.0.0.0/0"] # I think this is fine for now
+    cidr_blocks = ["0.0.0.0/0"] # Anyone can connect I think
   }
 
   # Inbound can SSH
@@ -17,7 +17,7 @@ resource "aws_security_group" "wireguard_sg" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["49.205.106.114/32"]
+    cidr_blocks = ["0.0.0.0/0"] # 
   }
 
   # Allow all outbound

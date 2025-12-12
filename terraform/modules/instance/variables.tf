@@ -7,3 +7,8 @@ variable "security_group_id" {
   description = "The SG ID to associate to the instance"
   type        = string
 }
+
+variable "iam_instance_profile_name" {
+  description = "IAM instance profile name"
+  type        = string
+}
