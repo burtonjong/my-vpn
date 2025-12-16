@@ -34,7 +34,25 @@ sudo wg show
 
 This will show you proof that wireguard is running and what the traffic status is. You can also see how many clients are connected
 
-4. You should be able to access the wireguard client config in parameter store now.
+4. ~~You should be able to access the wireguard client config in parameter store now.~~ (I switched to S3. See [Development Note 4](#development-note-4))
+
+If you go to Amazon S3, you should see a bucket named `myvpn-client-conf`. After the infrastrcuture was provisioned and the user data script ran, it should copy the Wireguard client configuration to S3.
+
+![S3 Console Image](./public/S3-console.png)
+
+Download this configuration file so that we can use it in our Wireguard Client application.
+
+5. Install the Wireguard application either on the App or on your desktop
+
+After installing the app, you can add the client configuration file by pressing the button in the top right:
+
+![Adding Wireguard Config](./public/wg-client-add.PNG)
+
+After adding the wireguard config, you'll have to press `allow` to modify your VPN configuration. After pressing allow, you should be able to connect to your VPN by pressing the slider:
+
+![Enabling Wireguard VPN](./public/wg-client.PNG)
+
+Now you have free, secure, and private internet access.
 
 # Development Note
 
@@ -125,3 +143,7 @@ resource "aws_iam_role_policy" "ssm_parameter_store" {
   })
 }
 ```
+
+## Development Note 4
+
+This is my first time using parameter store. Since it doesn't really store files, and is more for storing strings, I think that S3 is the better use case here.

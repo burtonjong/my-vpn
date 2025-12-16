@@ -71,12 +71,14 @@ chown ubuntu:ubuntu /home/ubuntu/wg-client.conf
 systemctl enable wg-quick@wg0
 systemctl start wg-quick@wg0
 
-CLIENT_CONFIG=$(cat /home/ubuntu/wg-client.conf)
-aws ssm put-parameter \
-    --name "/wireguard/client-config" \
-    --value "$CLIENT_CONFIG" \
-    --type "SecureString" \
-    --overwrite \
-    --region ${aws_region}
+# CLIENT_CONFIG=$(cat /home/ubuntu/wg-client.conf)
+# aws ssm put-parameter \
+#     --name "/wireguard/client-config" \
+#     --value "$CLIENT_CONFIG" \
+#     --type "SecureString" \
+#     --overwrite \
+#     --region ${aws_region}
+
+sudo aws s3 cp "/home/ubuntu/wg-client.conf" s3://myvpn-client-conf/
 
 echo "Finished wireguard setup script"
