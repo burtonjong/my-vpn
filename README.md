@@ -2,7 +2,48 @@
 
 Trying to make my own self hosted VPN with Terraform and Wireguard
 
+## Details
+
+MyVpn is a self-hosted VPN solution hosted on AWS that costs $0 thanks to their free tier. The VPN connection is private and secure, and easy to deploy thanks to Terraform.
+
+The configuration for the VPN is stored in an S3 bucket that has SSE enabled. There is also minimal latency, as you can choose the region and availability zone that you deploy in.
+
+## Architecture
+
+MyVpn is deployed to AWS using Terraform and is composed of a small set of focused modules. The architecture is intentionally simple and optimized for a single WireGuard server that stores its client configuration in S3.
+
+- **Terraform modules**: The deployment is driven by the Terraform modules in `terraform/modules` — `vpc`, `sg`, `s3`, `iam`, and `instance`. The root module (`terraform/main.tf`) wires these together.
+- **Network**: A single VPC (`10.0.0.0/16`) with one public subnet (`10.0.1.0/24`) and an Internet Gateway. A public route table forwards 0.0.0.0/0 to the IGW so the instance can be reached and can access the Internet.
+- **Security**: A security group (`wireguard_sg`) allows inbound UDP on WireGuard's default port (51820) from anywhere and allows all outbound traffic. This exposes the WireGuard UDP port to clients on the public Internet.
+- **Compute**: A single EC2 instance (`t3.micro`) runs Ubuntu (Jammy) and is provisioned with a user-data script (`modules/instance/wireguard-user-data.sh`) that installs WireGuard, generates server and client keys, enables IP forwarding, configures iptables NAT, and starts `wg-quick@wg0`.
+- **IAM & SSM**: An IAM role and instance profile are attached to the EC2 instance. The role includes the `AmazonSSMManagedInstanceCore` attachment so you can use SSM Session Manager to connect to the instance, and a custom policy granting `s3:PutObject` to the client-config S3 bucket so the instance can upload the generated client file.
+- **Storage**: The client WireGuard config is uploaded to an S3 bucket named `myvpn-client-conf` which has server-side encryption (AES256) enabled. This is the primary distribution point for the client configuration.
+
+![Architecture Diagram](./public/diagram.png)
+
+### Operational flow:
+
+1. Terraform provisions the VPC, subnet, route table, security group, S3 bucket, IAM role/profile, and the EC2 instance via the `instance` module.
+2. On first boot (and after replacement, because `user_data_replace_on_change = true`), the EC2 instance's user-data script installs WireGuard, generates keys, and writes the server and client configs.
+3. The script uploads the generated client configuration to the S3 bucket (`myvpn-client-conf`) using the IAM role's S3 permissions.
+4. Optionally, you can reach the instance via SSM (Session Manager) for troubleshooting because the instance profile includes SSM permissions.
+
+### Design notes:
+
+- The setup exposes only the WireGuard UDP port; no SSH port is opened — SSM is used for administration instead of opening SSH.
+- The client config is stored in S3 (instead of Parameter Store) to allow downloading the full file easily.
+- This architecture is optimized for minimal cost and simplicity rather than high availability or multi-user scaling.
+
+## Future Considerations
+
+- Terraform state should be stored remotely. However, since this was a solo project, I didn't see a need to. If I did need to, I could create another S3 bucket or Terraform Cloud and store it there.
+- Since this was a solo project, availability is not a big concern as I could always reapply my changes (althought not best practice) to restart my server.
+- It's kind of a pain to have to grab the configuration file from S3 every time. Having some sort of UI to download the configuration would be nice.
+- This only allows one person to connect to the VPN - Maybe a future project with Tailscale would be nice
+
 ## Getting the project working
+
+In `terraform.tfvars.example` you will have to rename the file (or create a new one) named `terraform.tfvars`. Copy over the 2 lines, and insert the AWS region to deploy to and your AWS profile that you want to deploy the resources to.
 
 1. You'll have to cd into the `terraform` folder first:
 
