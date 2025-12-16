@@ -32,6 +32,7 @@ CLIENT_PUBLIC_KEY=$(cat /etc/wireguard/client_public.key)
 # define client IP
 SERVER_IP="10.16.16.1/24"
 CLIENT_IP="10.16.16.2/32"
+OUT_IFACE=$(ip route | awk '/default/ {print $5}')
 
 # wireguard server config
 cat > /etc/wireguard/wg0.conf <<EOF
@@ -39,8 +40,8 @@ cat > /etc/wireguard/wg0.conf <<EOF
 PrivateKey = $SERVER_PRIVATE_KEY
 Address = $SERVER_IP
 ListenPort = ${wireguard_port}
-PostUp = iptables -A FORWARD -i wg0 -j ACCEPT; iptables -t nat -A POSTROUTING -o ens5 -j MASQUERADE
-PostDown = iptables -D FORWARD -i wg0 -j ACCEPT; iptables -t nat -D POSTROUTING -o ens5 -j MASQUERADE
+PostUp   = iptables -t nat -A POSTROUTING -o ${OUT_IFACE} -j MASQUERADE
+PostDown = iptables -t nat -D POSTROUTING -o ${OUT_IFACE} -j MASQUERADE
 
 [Peer]
 PublicKey = $CLIENT_PUBLIC_KEY
